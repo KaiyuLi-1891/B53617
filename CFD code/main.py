@@ -9,6 +9,6 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('B53617')
     print_hi('励凯宇')
-    
+    print_hi('樊昊')
 
 
