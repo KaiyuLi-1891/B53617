@@ -60,7 +60,7 @@ agent = PPOAgent(
         type='single',
         session_config=None,
         distributed_spec=None
-    ) 
+    ) ,
     saver=dict(
         directory='./saver/', 
         basename='PPO_model.ckpt', 
