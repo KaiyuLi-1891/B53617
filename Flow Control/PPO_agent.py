@@ -13,24 +13,29 @@ agent = PPOAgent(
     actions=environment.actions,
     network=network_spec,
     # Agent
-    states_preprocessing=None,
-    actions_exploration=None,
-    reward_preprocessing=None,
+    state_preprocessing=None,
+    # actions_exploration=None,
+    exploration = 0;
+    reward_processing = None,
+    # reward_estimation[reward_preprocessing]=None, ### Deprecated Agent argument reward_preprocessing, use reward_estimation[reward_preprocessing] instead
     # MemoryModel
-    update_mode=dict(
-        unit='episodes',
-        # 10 episodes per update
-        batch_size=20,
-        # Every 10 episodes
-        frequency=20
-    ),
+    # update_mode=dict(
+    #     unit='episodes',
+    #     # 10 episodes per update
+    #     batch_size=20,
+    #     # Every 10 episodes
+    #     frequency=20
+    # ),
+###I reckon that the update_mode function is separated into update_frequency and batch_size in the latest version
+    update_frequency = 20,
     memory=dict(
         type='latest',
         include_next_states=False,
         capacity=10000
     ),
     # DistributionModel
-    distributions=None,
+    # distributions=None,    #Not sure whether these 2 are the same
+    use_beta_distribution = False,
     entropy_regularization=0.01,
     # PGModel
     baseline_mode='states',
@@ -55,7 +60,7 @@ agent = PPOAgent(
         learning_rate=1e-3
     ),
     subsampling_fraction=0.2,
-    optimization_steps=25,
+    multi_step=25,  ###Deprecated PPO argument optimization_steps, use multi_step instead
     execution=dict(
         type='single',
         session_config=None,
@@ -66,6 +71,8 @@ agent = PPOAgent(
         basename='PPO_model.ckpt', 
         load=False, 
         seconds=600),
+    max_episode_timesteps = 40000,  ### Required arguments missing
+    batch_size = 20,  ### Required arguments missing
 )
 
 if(os.path.exists('saved_models/checkpoint')):
