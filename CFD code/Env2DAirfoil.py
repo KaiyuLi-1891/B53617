@@ -7,10 +7,10 @@ from math import *
 
 
 class Env2DAirfoil:
-    def naca0012(self, x, chord):
+    def naca0012(self, x, chord=self.D):
         return 0.6 * (-0.1015 * x ** 4 + 0.2843 * x ** 3 - 0.3576 * x ** 2 - 0.1221 * x + 0.2969 * np.sqrt(x))
 
-    def naca0015(self, x, chord):
+    def naca0015(self, x, chord=sefl.D):
         return 0.6 * (-0.0644 * x ** 4 + 0.2726 * x ** 3 - 0.3576 * x ** 2 - 0.1270 * x + 0.2983 * np.sqrt(x))
 
     def __init__(self, Re=2500, attack_angle=pi / 7.2, probes_mode=0, probe_locations_mode=0, save_data=1,
@@ -48,7 +48,8 @@ class Env2DAirfoil:
         self.save_data = save_data  # if 1, save the data; if 0, do not save
         self.save_fre = save_fre  # the frequency of saving data, in terms of time steps.
 
-        self.locations = []
+        self.locations = [] #locations of the observation points
+        self.jet_locations = [] #exact locations of the jets
         self.probes = []
         self.recall_step = 40
         self.probes_num = 192
@@ -58,6 +59,10 @@ class Env2DAirfoil:
         self.jet2_location = 0.4
         self.jet3_location = 0.6
         self.jet_width_rate = 0.01  # Real width of jet = 2*self.jet_width_rate*self.chord
+
+        self.jet_locations.append(Point((self.jet1_location,self.naca0012(self.jet1_location))))
+        self.jet_locations.append(Point((self.jet2_location,self.naca0012(self.jet2_location))))
+        self.jet_locations.append(Point((self.jet3_location,self.naca0012(self.jet3_location))))
 
         self.Cd_max = 0
         self.Cl_max = 0
@@ -88,6 +93,8 @@ class Env2DAirfoil:
         rotation_matrix = np.array(
             [[cos(-self.attack_angle), -sin(-self.attack_angle)], [sin(-self.attack_angle), cos(-self.attack_angle)]])
         rotated_airfoil = [Point(np.dot(rotation_matrix, (p.x(), p.y()))) for p in self.airfoil_points]
+        self.jet_locations = [Point(np.dot(rotation_matrix, (p.x(), p.y()))) for p in self.jet_locations]
+        self.jet_locations = [(p.x(), p.y()) for p in self.jet_locations]
         self.airfoil0012 = Polygon(rotated_airfoil)
         self.channel = Rectangle(Point(-0.5 * self.D, -0.7 * self.D), Point(3 * self.D, 0.7 * self.D))
         self.domain = self.channel - self.airfoil0012
@@ -404,7 +411,11 @@ class Env2DAirfoil:
          if show_observation_points == 1:
             x_coords = np.array(self.locations)[:, 0]
             y_coords = np.array(self.locations)[:, 1]
-            plt.scatter(x_coords, y_coords, color='red', s=5)
+            plt.scatter(x_coords, y_coords, color='black', s=5)
+
+            x1_coords = np.array(self.jet_locations)[:, 0]
+            y1_coords = np.array(self.jet_locations)[:, 1]
+            plt.scatter(x1_coords, y1_coords, color='navy', s=5)
              
         plt.xlabel('x')
         plt.ylabel('y')
