@@ -51,10 +51,11 @@ agent = PPOAgent(
     # PGLRModel
     likelihood_ratio_clipping=0.2,
     # PPOAgent
-    step_optimizer=dict(
-        type='adam',
-        learning_rate=1e-3
-    ),
+    #step_optimizer=dict(
+    #    type='adam',
+    #    learning_rate=1e-3
+    #),
+    learning_rate=1e-3,
     subsampling_fraction=0.2,
     optimization_steps=25,
     execution=dict(
