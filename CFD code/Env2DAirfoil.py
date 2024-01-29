@@ -400,16 +400,19 @@ class Env2DAirfoil:
         plt.tripcolor(self.mesh.coordinates()[:, 0], self.mesh.coordinates()[:, 1], self.mesh.cells(), self.p_array,
                       shading="gouraud", cmap='coolwarm')
         plt.colorbar()
+
+         if show_observation_points == 1:
+            x_coords = np.array(self.locations)[:, 0]
+            y_coords = np.array(self.locations)[:, 1]
+            plt.scatter(x_coords, y_coords, color='red', s=5)
+             
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title('P_field')
 
-        if show_observation_points == 1:
-            x_coords = np.array(self.locations)[:, 0]
-            y_coords = np.array(self.locations)[:, 1]
-            plt.scatter(x_coords, y_coords, color='red', s=5)
+       
             
-        plt.savefig("Airfoil_Re2500/" + str(self.n / self.num_steps).zfill(6) + "Re2500" + ".png")
+        # plt.savefig("Airfoil_Re2500/" + str(self.n / self.num_steps).zfill(6) + "Re2500" + ".png")
         if self.n % 200 == 0:
             plt.show()
 
