@@ -2,7 +2,18 @@ from tensorforce.environments import Environment
 
 class env(Environment, Env2DAirfoil):
     def __init__(self):
-        super().__init__()
+        self.reset_flag = 0
+        # super().__init__()
+        Environment.__init__(self)
+        Env2DAirfoil.__init__(self)
+
+        self.states = dict(type='float', shape=(self.probes_num*2,))##velocity
+
+        self.actions = dict(type='float',
+                    shape=(1,),##jet_num
+                    min_value=-0.02,
+                    max_value=0.02)
+        
 
     def states(self):
         return dict(type='float', shape=(self.probes_num*2,))##velocity
