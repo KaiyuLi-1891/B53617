@@ -333,7 +333,7 @@ class Env2DAirfoil:
     def get_reward(self, Cd, Cl, mode=0):  ############# more modes might be added later on
         return -Cd - 0.2 * Cl + 5  # plus the average drag without control
 
-    def evolve(self, Q1=0, Q2=0, Q3=0):
+    def evolve(self, Q1=0, Q2=0, Q3=0,plot_p_field=0,show_observation_points=0,plot_fre=400):
         # Time-stepping
 
         if self.n % 200 == 0:
@@ -370,7 +370,8 @@ class Env2DAirfoil:
         self.lift_list.append(self.lift_coefficient)
         self.avg_lift = np.mean(self.lift_list)
 
-        self.plot_p_field()
+        if plot_p_field == 1 and self.n % plot_fre ==0:
+            self.plot_p_field(show_observation_points)
 
         if self.save_data == 1 and self.n % self.save_fre == 0:
             self.xdmffile_u.write(self.u_, self.n * self.dt)
@@ -386,17 +387,12 @@ class Env2DAirfoil:
         # return s_,r,done
         return probe_results, self.get_reward(self.avg_drag, self.avg_lift), False
 
-    def evolve_n(self, n, Q1=0, Q2=0, Q3=0):
+    def evolve_n(self, n, Q1=0, Q2=0, Q3=0,plot_p_field=0,show_observation_points=0,plot_fre=400):
         for i in range(n):
-            self.evolve(Q1, Q2, Q3)
+            self.evolve(Q1, Q2, Q3,plot_p_field,show_observation_points,plot_fre)
 
-    def plot_p_field(self):
-        # plot(self.p_, title="NACA0012，Re = 2500")
-        # x_coords = np.array(self.locations)[:, 0]
-        # y_coords = np.array(self.locations)[:, 1]
-        # plt.scatter(x_coords, y_coords, color='red', s=5)
-
-        # plt.show()
+    def plot_p_field(self,show_observation_points=0):
+               
         plt.clf()
         self.p_array = self.p_.compute_vertex_values(self.mesh)
         self.p_array = self.p_array.reshape((self.mesh.num_vertices(),))
@@ -407,6 +403,12 @@ class Env2DAirfoil:
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title('P_field')
+
+        if show_observation_points == 1:
+            x_coords = np.array(self.locations)[:, 0]
+            y_coords = np.array(self.locations)[:, 1]
+            plt.scatter(x_coords, y_coords, color='red', s=5)
+            
         plt.savefig("Airfoil_Re2500/" + str(self.n / self.num_steps).zfill(6) + "Re2500" + ".png")
         if self.n % 200 == 0:
             plt.show()
