@@ -9,7 +9,7 @@ class env(Environment, Env2DAirfoil):
 
     def actions(self):
         return dict(type='float',
-                    shape=(2,),##jet_num
+                    shape=(1,),##jet_num
                     min_value=-0.02,
                     max_value=0.02)
 
