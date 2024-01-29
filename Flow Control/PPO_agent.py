@@ -33,7 +33,7 @@ agent = PPOAgent(
     distributions=None,
     entropy_regularization=0.01,
     # PGModel
-    baseline_mode='states',
+    # baseline_mode='states',     #####not sure about its counterpart in the new version
     baseline=dict(
         type='mlp',
         sizes=[32, 32]
@@ -46,7 +46,8 @@ agent = PPOAgent(
         ),
         num_steps=5
     ),
-    gae_lambda=0.97,
+    # gae_lambda=0.97,
+    discount = 0.97 
     # PGLRModel
     likelihood_ratio_clipping=0.2,
     # PPOAgent
