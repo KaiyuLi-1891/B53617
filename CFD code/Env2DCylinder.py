@@ -106,6 +106,7 @@ class Env2DCylinder():
 
         self.V = VectorFunctionSpace(self.mesh, 'P', 2)
         self.Q = FunctionSpace(self.mesh, 'P', 1)
+        self.W = FunctionSpace(self.mesh, 'CG', 1)
 
         self.V_test = VectorFunctionSpace(self.mesh, 'P', 2)
         self.Q_test = FunctionSpace(self.mesh, 'P', 1)
@@ -154,6 +155,7 @@ class Env2DCylinder():
         self.u_ = Function(self.V)
         self.p_n = Function(self.Q)
         self.p_ = Function(self.Q)
+        self.w_ = Function(self.W)
 
         self.u_mem = Function(self.V)
         self.p_mem = Function(self.Q)
@@ -298,12 +300,15 @@ class Env2DCylinder():
             # print("Time step:",n,"Cd:",drag_coefficient,"Cl",lift_coefficient)
 
         if self.n % 200 == 0:
+            self.plot_p_field()
+            self.w_ = self.compute_vorticity(self.u_)
+            self.plot_w_field()
 
-            fig = plt.figure(figsize=(160, 60), dpi=100)
-            plot(self.p_)
-            for p in self.locations:
-                plt.scatter(p[0], p[1], color='red', s=300)
-            plt.show()
+            # fig = plt.figure(figsize=(160, 60), dpi=100)
+            # plot(self.p_)
+            # for p in self.locations:
+            #     plt.scatter(p[0], p[1], color='red', s=300)
+            # plt.show()
 
         self.u_n.assign(self.u_)
         self.p_n.assign(self.p_)
@@ -357,6 +362,54 @@ class Env2DCylinder():
         fig = plt.figure(figsize=(160, 60), dpi=100)
         plot(self.mesh)
         plt.show()
+
+    def plot_p_field(self,show_observation_points=0):
+        
+        plt.clf()
+        self.p_array = self.p_.compute_vertex_values(self.mesh)
+        self.p_array = self.p_array.reshape((self.mesh.num_vertices(),))
+        plt.figure(figsize=(10,4))
+        plt.tripcolor(self.mesh.coordinates()[:,0],self.mesh.coordinates()[:,1],self.mesh.cells(),self.p_array,shading="gouraud",cmap='coolwarm')
+        plt.colorbar()
+        
+        if show_observation_points == 1:
+            x_coords = np.array(self.locations)[:, 0]
+            y_coords = np.array(self.locations)[:, 1]
+            plt.scatter(x_coords, y_coords, color='black', s=5)
+            
+            x1_coords = np.array(self.jet_locations)[:, 0]
+            y1_coords = np.array(self.jet_locations)[:, 1]
+            plt.scatter(x1_coords, y1_coords, color='navy', s=5)
+        
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('P_field')
+        
+    def plot_w_field(self,show_observation_points=0):
+        
+        plt.clf()
+        self.w_array = self.w_.compute_vertex_values(self.mesh)
+        self.w_array = self.w_array.reshape((self.mesh.num_vertices(),))
+        plt.figure(figsize=(100,40))
+        plt.tripcolor(self.mesh.coordinates()[:,0],self.mesh.coordinates()[:,1],self.mesh.cells(),self.w_array,shading="gouraud",cmap='coolwarm')
+        plt.colorbar()
+        
+        if show_observation_points == 1:
+            x_coords = np.array(self.locations)[:, 0]
+            y_coords = np.array(self.locations)[:, 1]
+            plt.scatter(x_coords, y_coords, color='black', s=5)
+            
+            x1_coords = np.array(self.jet_locations)[:, 0]
+            y1_coords = np.array(self.jet_locations)[:, 1]
+            plt.scatter(x1_coords, y1_coords, color='navy', s=5)
+        
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Vorticity_field')
+        
+#         plt.savefig("Airfoil_Re2500/"+str(self.n/self.num_steps).zfill(6)+"Re2500"+".png")
+        if self.n % 200 == 0:
+            plt.show()
 
     def get_reward(self, drag, lift):
         return -drag  # -0.2*lift##+3.18)?*
