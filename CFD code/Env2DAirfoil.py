@@ -115,6 +115,7 @@ class Env2DAirfoil:
 
         self.V = VectorFunctionSpace(self.mesh, 'P', 2)
         self.Q = FunctionSpace(self.mesh, 'P', 1)
+        self.W = FunctionSpace(self.mesh,'CG',1)
 
         # Define boundaries
         self.inflow = 'near(x[0],-0.5)'
@@ -215,6 +216,7 @@ class Env2DAirfoil:
         self.u_ = Function(self.V)
         self.p_n = Function(self.Q)
         self.p_ = Function(self.Q)
+        self.w_ = Function(self.W)
 
         # Expressions used in variational forms
         self.U = 0.5 * (self.u_n + self.u)
@@ -420,6 +422,51 @@ class Env2DAirfoil:
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title('P_field')
+
+    def plot_w_field(self,show_observation_points=0):
+        
+        plt.clf()
+        self.w_array = self.w_.compute_vertex_values(self.mesh)
+        self.w_array = self.w_array.reshape((self.mesh.num_vertices(),))
+        plt.figure(figsize=(100,40))
+        plt.tripcolor(self.mesh.coordinates()[:,0],self.mesh.coordinates()[:,1],self.mesh.cells(),self.w_array,shading="gouraud",cmap='coolwarm')
+        plt.colorbar()
+        
+        if show_observation_points == 1:
+            x_coords = np.array(self.locations)[:, 0]
+            y_coords = np.array(self.locations)[:, 1]
+            plt.scatter(x_coords, y_coords, color='black', s=5)
+            
+            x1_coords = np.array(self.jet_locations)[:, 0]
+            y1_coords = np.array(self.jet_locations)[:, 1]
+            plt.scatter(x1_coords, y1_coords, color='navy', s=5)
+        
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Vorticity_field')
+
+    def compute_vorticity(self,u):
+        mesh = self.mesh
+        class VorticityExpression(UserExpression):
+            def __init__(self,ux_value,uy_value,degree=1,mesh=mesh):
+                self.ux_value = ux_value
+                self.uy_value = uy_value
+                self.YY = FunctionSpace(mesh,'P',1)
+                self.ux_trial = Function(self.YY)
+                self.ux_trial.vector().set_local(self.ux_value)
+                self.uy_test = Function(self.YY)
+                self.uy_test.vector().set_local(self.uy_value)
+                super().__init__(degree=degree)
+            def eval(self,value,x):
+                value[0] = self.ux_trial.dx(1)(x)-self.uy_test.dx(0)(x)
+                
+            def value_shape(self):
+                return ()
+        
+        ux,uy = u.split(deepcopy = True)
+        VORTICITY = Function(self.W)
+        VORTICITY = project(uy.dx(0)-ux.dx(1),self.W)
+        return VORTICITY
 
        
             
