@@ -422,6 +422,7 @@ class Env2DAirfoil:
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title('P_field')
+        plt.show()
 
     def plot_w_field(self,show_observation_points=0):
         
@@ -444,6 +445,7 @@ class Env2DAirfoil:
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title('Vorticity_field')
+        plt.show()
 
     def compute_vorticity(self,u):
         mesh = self.mesh
