@@ -142,21 +142,24 @@ class Env2DAirfoil(gym.Env):
         self.airfoil = 'on_boundary && x[0]>-0.1 && x[0]<1.1 && x[1] >-0.6&& x[1] <0.3'
 
         # self.jet1 = 'on_boundary && x[0]>({0}*{1}) && x[0]<({0}*{1}+0.03*{1}) && x[1]>0 && x[1]<(0.5*{1})'.format(self.jet1_location,self.D)
-        self.jet1 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) '.format(self.jet1_location,
+        self.jet1 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) && x[1]>(-{0}*{3}) '.format(self.jet1_location,
                                                                                               self.D * cos(
                                                                                                   self.attack_angle),
                                                                                               self.jet_width_rate * cos(
-                                                                                                  self.attack_angle))
-        self.jet2 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) '.format(self.jet2_location,
+                                                                                                  self.attack_angle),
+                                                                                                self.D*sin(self.attack_angle)
+        self.jet2 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) && x[1]>(-{0}*{3}) '.format(self.jet2_location,
                                                                                               self.D * cos(
                                                                                                   self.attack_angle),
                                                                                               self.jet_width_rate * cos(
-                                                                                                  self.attack_angle))
-        self.jet3 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) '.format(self.jet3_location,
+                                                                                                  self.attack_angle),
+                                                                                             self.D*sin(self.attack_angle)
+        self.jet3 = 'on_boundary && x[0]>({0}*{1}-{2}*{1}) && x[0]<({0}*{1}+{2}*{1}) && x[1]>(-{0}*{3}) '.format(self.jet3_location,
                                                                                               self.D * cos(
                                                                                                   self.attack_angle),
                                                                                               self.jet_width_rate * cos(
-                                                                                                  self.attack_angle))
+                                                                                                  self.attack_angle),
+                                                                                             self.D*sin(self.attack_angle)
 
         # Inflow profile
         self.inflow_profile = ('4.0*(U_m)*(0.7*D+x[1])*(0.7*D-x[1])/pow(1.4,2)', '0')
@@ -451,6 +454,9 @@ class Env2DAirfoil(gym.Env):
         self.reward_list.append(self.get_reward(self.avg_drag, self.avg_lift))
 
         if self.n == self.num_steps - 5:
+            save_reward_list = np.array(self.reward_list)
+            np.save('reward_list_Airfoil2500',save_reward_list)
+            
             index = range(len(self.reward_list))
             plt.plot(index, self.reward_list)
             plt.xlabel('Time Step')
