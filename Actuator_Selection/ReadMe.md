@@ -1,1 +1,1 @@
-
+The idea of using ERA to determine the selection of the actuators comes from :Bhattacharjee, Debraj, et al. "Data-driven selection of actuators for optimal control of airfoil separation." Theoretical and Computational Fluid Dynamics 34 (2020): 557-575.
